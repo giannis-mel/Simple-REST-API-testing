@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, make_response # Imports the flask library modules
 from flask_sqlalchemy import SQLAlchemy
-import uuid # for public id
+import uuid # for public id, not used for now
 from  werkzeug.security import generate_password_hash, check_password_hash
-# imports for PyJWT authentication
+# Imports for PyJWT authentication
 import jwt
 from datetime import datetime, timedelta
 from functools import wraps
@@ -11,10 +11,10 @@ from functools import wraps
 app = Flask(__name__) # Single module that grabs all modules executing from this file
 
 app.config['SECRET_KEY'] = 'your secret key'
-# database name
+# Database name
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# creates SQLALCHEMY object
+# Creates SQLALCHEMY object
 db = SQLAlchemy(app)
 
 idNum = 1
@@ -48,30 +48,31 @@ def validate_json(f):
     return wrapper
 """
  
-# decorator for verifying the JWT
+# Decorator for verifying the JWT
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        # jwt is passed in the request header
+        # JWT is passed in the request header
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-        # return 401 if token is not passed
+        # Return 401 if token is not passed
         if not token:
             return jsonify({'message' : 'Token is missing !!'}), 401
   
         try:
             # Remove the bearer
             tokens = token.split(" ");
-            print(tokens[1])
-            # decoding the payload to fetch the stored details
+            # Decoding the payload to fetch the stored details
             data = jwt.decode(tokens[1], key='your secret key', algorithms=['HS256'])
-            print("THIS IS THE DATA RETURNED")
-            print(data)
+            # Useful for debugging
+            #print("Data returned: ")
+            #print(data)
+            # Find current user by his id.
             current_user = User.query.filter_by(id = data['id']).first()
         except:
             return jsonify({'message' : 'Token is invalid !!'}), 401
-        # returns the current logged in users contex to the routes
+        # Returns the current logged in users contex to the routes
         return  f(current_user, *args, **kwargs)
   
     return decorated
@@ -120,7 +121,7 @@ def login():
         
         if user :
             if check_password_hash(user.password, rec_password):
-                # generates the JWT Token
+                # Generates the JWT Token
                 token = jwt.encode({
                 'id': user.id,
                 'exp' : datetime.utcnow() + timedelta(minutes = 30)
@@ -141,77 +142,143 @@ def login():
                 response.status_code = 400 # Provides a response status code of 400 which is "Not Acceptable"
                 return response # Returns the HTTP response   
 
-# Route to create the database(run this the first time you make a connection to create the db)
+# Route for creating the database(run this the first time you make a connection to create the db !)
 @app.route('/create')
 def create():
     db.create_all()
     return 'All tables created'
-    
- # Route for updating user
-@app.route('/update', methods =['POST'])
+
+# Route for updating user with if of the user that needs to be updated in path variable 
+# Ex: /api/v1/users/5ca5ddd23bf77546543e2c9f 
+@app.route('/api/v1/users/<userId>', methods =['PUT'])
 @token_required
-def update(current_user):
+def update_with_path_variable(current_user, userId):
     data = []
     output = []
-    request_data = request.get_json()
-    # Check if current user has admin rights
-    if current_user.role == "admin":
-        # Creates a dictionary
+    print(userId)
+    if request.method == 'PUT': # Checks if it's a PUT request
         request_data = request.get_json()
-      
-        # Gets values from JSON
-        new_name, new_email = request_data.get('name'), request_data.get('email')
-        new_role = request_data.get('role')
-        new_active = request_data.get('active')
-        
-        # Datetime object containing current date and time
-        now = datetime.now()
-        
-        # Checking for existing user
-        user_to_update = User.query.filter_by(email = new_email).first()
-        print(user_to_update)
-        
-        if not user_to_update:
-            return make_response('No such user can be found.', 400)
+        # Check if current user has admin rights
+        if current_user.role == "admin":
+            # Creates a dictionary
+            request_data = request.get_json()
+          
+            # Gets values from JSON
+            new_name, new_email = request_data.get('name'), request_data.get('email')
+            new_role = request_data.get('role')
+            new_active = request_data.get('active')
+            
+            # Datetime object containing current date and time
+            now = datetime.now()
+            
+            # Checking for existing user by using userId given in path variable
+            user_to_update = User.query.filter_by(id = userId).first()
+            print(user_to_update)
+            
+            if not user_to_update:
+                return make_response('No such user can be found.', 400)
+            else :
+            
+                # Check if valid role is given
+                if new_role != "reporter" :
+                    if new_role != "executor":
+                        if new_role != "admin":
+                            return make_response('Role can only be reporter, executor or admin.', 403) 
+            
+                user_to_update.active = new_active
+                user_to_update.email = new_email
+                user_to_update.role = new_role
+                user_to_update.updatedAt = now.strftime("%d/%m/%Y %H:%M:%S")
+                user_to_update.updatedBy = current_user.id
+                
+                db.session.commit()
+                
+                # Send the response
+                output.append({
+                    'active' : user_to_update.active,
+                    'id': user_to_update.id,
+                    'name' : user_to_update.name,
+                    'email' : user_to_update.email,
+                    'role' : user_to_update.role,
+                    'createdAt' : user_to_update.createdAt,
+                    'createdBy' : user_to_update.createdBy,
+                    'updatedAt' : user_to_update.updatedAt,
+                    'updatedBy' : user_to_update.updatedBy
+                })
+                
+                data = {"data" : {"user" : output}, "status" : 200}
+                response = jsonify(data) # Converts your data into JSON format
+                response.status_code = 200 # Provides a response status code of 200 which is "Accepted" 
+                return response # Returns the HTTP response
         else :
-        
-            # Check if valid role is given
-            if new_role != "reporter" :
-                if new_role != "executor":
-                    if new_role != "admin":
-                        return make_response('Role can only be reporter, executor or admin.', 403) 
-        
-            user_to_update.active = new_active
-            user_to_update.email = new_email
-            user_to_update.role = new_role
-            user_to_update.updatedAt = now.strftime("%d/%m/%Y %H:%M:%S")
-            user_to_update.updatedBy = current_user.id
+            return make_response('Only an admin can update a user.', 400)
+
+ 
+# Route for updating user with no path variable and just using email from json body
+@app.route('/update', methods =['PUT'])
+@token_required
+def update_with_no_path_variable(current_user):
+    data = []
+    output = []
+    if request.method == 'PUT': # Checks if it's a POST request
+        request_data = request.get_json()
+        # Check if current user has admin rights
+        if current_user.role == "admin":
+            # Creates a dictionary
+            request_data = request.get_json()
+          
+            # Gets values from JSON
+            new_name, new_email = request_data.get('name'), request_data.get('email')
+            new_role = request_data.get('role')
+            new_active = request_data.get('active')
             
-            db.session.commit()
+            # Datetime object containing current date and time
+            now = datetime.now()
             
-            # Send the response
-            output.append({
-                'active' : user_to_update.active,
-                'id': user_to_update.id,
-                'name' : user_to_update.name,
-                'email' : user_to_update.email,
-                'role' : user_to_update.role,
-                'createdAt' : user_to_update.createdAt,
-                'createdBy' : user_to_update.createdBy,
-                'updatedAt' : user_to_update.updatedAt,
-                'updatedBy' : user_to_update.updatedBy
-            })
+            # Checking for existing user
+            user_to_update = User.query.filter_by(email = new_email).first()
+            print(user_to_update)
             
-            data = {"data" : {"user" : output}, "status" : 200} # Converts your data into JSON format
-              
-            response = jsonify(data) # Converts your data into JSON format
-            response.status_code = 200 # Provides a response status code of 200 which is "Accepted" 
-            return response # Returns the HTTP response
-    else :
-        return make_response('Only an admin can update a user.', 400)
+            if not user_to_update:
+                return make_response('No such user can be found.', 400)
+            else :
+            
+                # Check if valid role is given
+                if new_role != "reporter" :
+                    if new_role != "executor":
+                        if new_role != "admin":
+                            return make_response('Role can only be reporter, executor or admin.', 403) 
+            
+                user_to_update.active = new_active
+                user_to_update.email = new_email
+                user_to_update.role = new_role
+                user_to_update.updatedAt = now.strftime("%d/%m/%Y %H:%M:%S")
+                user_to_update.updatedBy = current_user.id
+                
+                db.session.commit()
+                
+                # Send the response
+                output.append({
+                    'active' : user_to_update.active,
+                    'id': user_to_update.id,
+                    'name' : user_to_update.name,
+                    'email' : user_to_update.email,
+                    'role' : user_to_update.role,
+                    'createdAt' : user_to_update.createdAt,
+                    'createdBy' : user_to_update.createdBy,
+                    'updatedAt' : user_to_update.updatedAt,
+                    'updatedBy' : user_to_update.updatedBy
+                })
+                
+                data = {"data" : {"user" : output}, "status" : 200}
+                response = jsonify(data) # Converts your data into JSON format
+                response.status_code = 200 # Provides a response status code of 200 which is "Accepted" 
+                return response # Returns the HTTP response
+        else :
+            return make_response('Only an admin can update a user.', 400)
     
 
-# Route for new user's sign up
+# Route for signing up new users
 @app.route('/signup', methods =['POST'])
 def signup():
     # Creates a dictionary
@@ -263,7 +330,7 @@ def signup():
   
         return make_response('Successfully registered.', 200)
     else:
-        # returns 202 if user already exists
+        # Returns 202 if user already exists
         return make_response('User already exists. Please Log in.', 202)
         
         
