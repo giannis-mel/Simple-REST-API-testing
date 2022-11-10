@@ -1,0 +1,1154 @@
+{
+	"info": {
+		"_postman_id": "eda81ef3-d6b5-470f-8eb9-f26e3cc7841a",
+		"name": "REST-project",
+		"description": "A first test for creating a REST api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24235739"
+	},
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "Create DB Flask",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"create"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Signup Tests",
+			"item": [
+				{
+					"name": "Signup Flask(admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Sign up --- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Chandler Bing\",\r\n    \"email\": \"admin@ekmechanes.com\",\r\n    \"password\": \"Password!!!!!\",\r\n    \"active\" : true ,\r\n    \"role\" : \"admin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signup Flask(simple-user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Sign up --- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ross Geller\",\r\n    \"email\": \"ross@ekmechanes.com\",\r\n    \"password\": \"ross\",\r\n    \"active\" : false,\r\n    \"role\" : \"reporter\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signup Flask(simple-user, not valid role)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not valid role --- Status is 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Monica Geller\",\r\n    \"email\": \"monica@ekmechanes.com\",\r\n    \"password\": \"monica\",\r\n    \"active\" : false,\r\n    \"role\" : \"dsda\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Signup Flask(simple-user 2nd time)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User already exists --- Status is 202\", function () {\r",
+									"    pm.response.to.have.status(202);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ross Geller\",\r\n    \"email\": \"ross@ekmechanes.com\",\r\n    \"password\": \"ross\",\r\n    \"active\" : false,\r\n    \"role\" : \"reporter\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/signup",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"signup"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login Tests",
+			"item": [
+				{
+					"name": "Login (admin)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// If it  has an access token then save it in environment's variable token\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmechanes.com\",\r\n\"password\": \"Password!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (simple-user)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"ross@ekmechanes.com\",\r\n\"password\": \"ross\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Wrong Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmechanes.com\",\r\n\"password\": \"P4ssword!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Wrong Email)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmssechanes.com\",\r\n\"password\": \"P4ssword!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (No email given)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"password\": \"P4ssword!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (No password given)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmssechanes.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (No valid JSON {})",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (No valid JSON)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Not logged in -- Status is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has error message\", function () {\r",
+									"    const {error} = pm.response.json();\r",
+									"    return 'messages' in error.messages;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "dsadasgfsgsgf",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Tests",
+			"item": [
+				{
+					"name": "Login (admin)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmechanes.com\",\r\n\"password\": \"Password!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update completed\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@ekmechanes.com\",\r\n    \"role\": \"admin\",\r\n    \"active\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/update",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update (admin)(role is not appropriate)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Can not update(non-valid role) --- Status 403\", function () {\r",
+									"    pm.response.to.have.status(403);\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@ekmechanes.com\",\r\n    \"role\": \"musician\",\r\n    \"active\": false\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/update",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"update"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (simple-user)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"ross@ekmechanes.com\",\r\n\"password\": \"ross\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update (simple-user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"A simple user cannot update\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"admin@ekmechanes.com\",\r\n    \"role\": \"admin\",\r\n    \"active\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/update",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"update"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Other Tests",
+			"item": [
+				{
+					"name": "Login (admin)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"admin@ekmechanes.com\",\r\n\"password\": \"Password!!!!!\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{baseUrl}}/login",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all users (as admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{baseUrl}}/user",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (simple-user)(Correct Password)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Logged in -- Status is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Has an access token\", function () {\r",
+									"    const {data} = pm.response.json();\r",
+									"    pm.environment.set('token', data.jwt.accessToken);\r",
+									"    return 'accessToken' in data.jwt;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"email\": \"ross@ekmechanes.com\",\r\n\"password\": \"ross\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "admin@ekmechanes.com",
+									"disabled": true
+								},
+								{
+									"key": "password",
+									"value": "Password!!!!!",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List all users (as simple-user)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{baseUrl}}/user",
+							"protocol": "http",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://127.0.0.1:5000"
+		}
+	]
+}
