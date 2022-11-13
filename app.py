@@ -1,3 +1,13 @@
+''' 
+Author: Giannis Meleziadis
+
+Simple REST API in Python using Flask. This server supports signup, login, listing all users
+and updating a user's entry. When running this server for the first time, the first request 
+should be -> http://127.0.0.1:5000/create to create the database on this server. 
+
+Language: Python 3.11.0
+'''
+
 from flask import Flask, request, jsonify, make_response # Imports the flask library modules
 from flask_sqlalchemy import SQLAlchemy
 import uuid # for public id, not used for now
@@ -5,7 +15,7 @@ from  werkzeug.security import generate_password_hash, check_password_hash
 # Imports for PyJWT authentication
 import jwt
 from datetime import datetime, timedelta
-from functools import wraps
+from functools import wraps # To wrap the original function name
 
 
 app = Flask(__name__) # Single module that grabs all modules executing from this file
@@ -17,6 +27,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Creates SQLALCHEMY object
 db = SQLAlchemy(app)
 
+# This increases every time a new user signs up.
 idNum = 1
 
 # Database ORMs
@@ -32,8 +43,38 @@ class User(db.Model):
     createdBy = db.Column(db.String(100), unique = False)
     updatedAt = db.Column(db.String(100), default = "not updated yet")
     updatedBy = db.Column(db.String(100), default = "not updated yet")
+    
+    
+    '''
+    # Constructor for the User class NOT USED YET
+    def __init__(self, name, email, password, active, role):
+    
+        # Datetime object containing current date and time
+        now = datetime.now()
+        
+        # Every potential new user can sign up on each own
+        global idNum
+    
+        self.name = name 
+        self.email = email
+        self.password = generate_password_hash(password)
+        self.registered_on = datetime.now()
+        self.id = str(idNum)
+        self.passwordChanged = False
+        self.active = active
+        self.role = role
+        self.createdAt = now.strftime("%d/%m/%Y %H:%M:%S")
+        self.createdBy = str(idNum)
+        self.updatedAt = "not updated yet"
+        self.updatedBy = "not updated yet"
+        
+        # Increase the id number
+        idNum = idNum + 1 
+        '''
+
 
 ## TO DO
+# Decorator for verifying JSON receive
 """
 # Verify that you receive JSON
 def validate_json(f):
@@ -80,7 +121,7 @@ def token_required(f):
 ## ROUTES
 
 # Route for logging user
-@app.route('/login', methods=['POST']) # HTTP request methods
+@app.route('/api/v1/authentication/login', methods=['POST']) # HTTP request method
 def login():
     data = []
     if request.method == 'POST': # Checks if it's a POST request
@@ -184,12 +225,13 @@ def update_with_path_variable(current_user, userId):
                     if new_role != "executor":
                         if new_role != "admin":
                             return make_response('Role can only be reporter, executor or admin.', 403) 
-            
+                            
+                # Update values for the selected user            
                 user_to_update.active = new_active
                 user_to_update.email = new_email
                 user_to_update.role = new_role
-                user_to_update.updatedAt = now.strftime("%d/%m/%Y %H:%M:%S")
-                user_to_update.updatedBy = current_user.id
+                user_to_update.updatedAt = now.strftime("%d/%m/%Y %H:%M:%S") # Save the update's date
+                user_to_update.updatedBy = current_user.id # Save the admin's id that did the update
                 
                 db.session.commit()
                 
@@ -235,7 +277,7 @@ def update_with_no_path_variable(current_user):
             # Datetime object containing current date and time
             now = datetime.now()
             
-            # Checking for existing user
+            # Checking for existing user using email
             user_to_update = User.query.filter_by(email = new_email).first()
             print(user_to_update)
             
@@ -362,4 +404,24 @@ def get_all_users(current_user):
         return jsonify({'users': output})
     else :
         return make_response('Only an admin can see the list of users', 400)
-       
+        
+        
+        
+'''     TODO
+# Route for returning specific user
+@app.route('/user/get', methods =['GET'])
+@token_required
+def get_user(current_user):
+
+    # Check if current user has admin rights
+    if current_user.role == "admin":
+        output = []
+        request_data = request.get_json()
+        # Gets values from JSON
+        ret_email = request_data.get('email')
+        # Checking for existing user
+        user = User.query.filter_by(email = ret_email).first()
+
+if __name__ == '__main__':
+    app.run(debug=True)
+'''
